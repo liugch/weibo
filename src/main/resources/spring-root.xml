@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:component-scan base-package="app.liugch.dao,app.liugch.services,app.liugch.Aspectj"/>
+
+    <context:property-placeholder location="classpath:db.properties,classpath:mail.properties"/>
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="user" value="${user}"/>
+        <property name="password" value="${password}"/>
+        <property name="jdbcUrl" value="${jdbcUrl}"/>
+        <property name="driverClass" value="${driverClass}"/>
+        <property name="maxPoolSize" value="${maxPoolSize}"/>
+        <property name="minPoolSize" value="${minPoolSize}"/>
+        <property name="initialPoolSize" value="${initialPoolSize}"/>
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+                <!--<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>-->
+            </props>
+
+        </property>
+        <property name="packagesToScan">
+            <list>
+                <value>app.liugch.model</value>
+            </list>
+        </property>
+
+    </bean>
+
+    <!--声明式任务管理器-->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!--事物的注解驱动，使用注解的方式-->
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager"/>
+
+
+    <!--163 发送邮件 -->
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${mail.host}" />
+        <property name="username" value="${mail.username}" />
+        <property name="password" value="${mail.password}" />
+        <property name="port" value="25"></property>
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.transport.protocol">smtp</prop>
+                <!--将这个参数设为true，让服务器进行认证,认证用户名和密码是否正确  -->
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.starttls.enable">true</prop>
+                <prop key="mail.smtp.timeout">25000</prop>
+                <prop key="mail.debug">true</prop>
+            </props>
+        </property>
+
+    </bean>
+</beans>

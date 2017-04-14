@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+
+
+    <mvc:annotation-driven/>
+
+    <!-- 以下 validator  ConversionService 在使用 mvc:annotation-driven 会 自动注册-->
+    <bean id="validator"
+          class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <property name="providerClass"  value="org.hibernate.validator.HibernateValidator"/>
+        <!-- 如果不加默认到 使用classpath下的 ValidationMessages.properties -->
+        <property name="validationMessageSource" ref="messageSource"/>
+    </bean>
+
+    <context:component-scan base-package="app.liugch.controller"/>
+
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/view/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+
+    <mvc:resources mapping="/js/**" location="/assets/js/"/>
+
+    <mvc:resources mapping="/css/**" location="/assets/css/"/>
+    <mvc:resources mapping="/img/**" location="/assets/img/"/>
+    <mvc:resources mapping="/uploads/**" location="/uploads/"/>
+
+
+    <bean id="messageSource"
+          class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="classpath:messages"/>
+        <property name="fileEncodings" value="utf-8"/>
+        <property name="cacheSeconds" value="120"/>
+    </bean>
+
+
+    <!-- SpringMVC上传文件时，需要配置MultipartResolver处理器 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"/>
+         <!--最大能上传的大小 20M-->
+        <property name="maxUploadSize" value="20971520"/>
+        <!--每个文件的大小5M-->
+        <property name="maxUploadSizePerFile" value="5242880"/>
+    </bean>
+
+    <!--图片的上传-->
+    <!--<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver" />-->
+
+
+</beans>
